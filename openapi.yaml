@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: Phone API
+  version: 1.0.0
+paths:
+  /api/auth/:
+    post:
+      summary: Verify phone number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+      responses:
+        '200':
+          description: Phone verified successfully
+        '400':
+          description: Bad request
+
+  /api/code/:
+    post:
+      summary: Verify verification code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+                verification_code:
+                  type: string
+      responses:
+        '200':
+          description: Verification code verified successfully
+        '400':
+          description: Bad request
+
+  /api/add_invitation/:
+    post:
+      summary: Add invitation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invitation_code:
+                  type: string
+                phone_number:
+                  type: string
+      responses:
+        '200':
+          description: Invitation added successfully
+        '400':
+          description: Bad request
+
+  /api/profile/:
+    get:
+      summary: Get profile information
+      parameters:
+        - name: phone_number
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: login_code
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile information retrieved successfully
+        '400':
+          description: Bad request
+

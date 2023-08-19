@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: hammer
+      POSTGRES_USER: hammers
+      POSTGRES_PASSWORD: hammer
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

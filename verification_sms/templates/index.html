@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verification System</title>
+</head>
+<body>
+    <h1>Verification System</h1>
+
+    <form id="verifyForm">
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" id="phone_number" name="phone_number" required><br>
+        <button type="button" id="getCode">Get Verification Code</button>
+    </form>
+
+    <form id="verifyCodeForm" style="display: none;">
+        <label for="verification_code">Verification Code:</label>
+        <input type="text" id="verification_code" name="verification_code" required><br>
+        <button type="button" id="verifyCode">Verify Code</button>
+    </form>
+
+    <div id="profile" style="display: none;">
+        <h2>Your Profile</h2>
+        <p><strong>Phone Number:</strong> <span id="profile_phone_number"></span></p>
+        <p><strong>Generated Code:</strong> <span id="profile_generated_code"></span></p>
+        <p><strong>Invitation Code:</strong> <span id="profile_invitation_code"></span></p>
+        <p><strong>Friends Number:</strong> <span id="profile_friends_number"></span></p>
+    </div>
+    
+    <form id="invitationForm" style="display: none;">
+        <label for="invitation_code">Invitation Code:</label>
+        <input type="text" id="invitation_code" required><br>
+        <button id="sendInvitationCode">Send Invitation Code</button>
+    </form>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken'); 
+        document.getElementById('getCode').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('phone_number').value;
+            // POST request to your backend to get the verification code
+            const response = await fetch('/api/auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ phone_number: phoneNumber })
+            });
+
+            if (response.status === 200) {
+                document.getElementById('verifyForm').style.display = 'none';
+                document.getElementById('verifyCodeForm').style.display = 'block';
+            }
+        });
+
+        document.getElementById('verifyCode').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('phone_number').value;
+            const verificationCode = document.getElementById('verification_code').value;
+
+            // POST request to your backend to verify the code
+            const response = await fetch('api/code/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                    verification_code: verificationCode
+                })
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                document.getElementById('profile_phone_number').textContent = data.phone_number;
+                document.getElementById('profile_generated_code').textContent = data.generated_code;
+                document.getElementById('profile_invitation_code').textContent = data.invitation_code;
+                document.getElementById('profile_friends_number').textContent = data.friends_number.join(', ');
+
+                document.getElementById('verifyCodeForm').style.display = 'none';
+                document.getElementById('profile').style.display = 'block';
+                if (data.invitation_code == "")
+                    {document.getElementById('invitationForm').style.display = 'block';}
+            }
+        });
+
+        // Send invitation code and return to profile page
+        document.getElementById('sendInvitationCode').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('phone_number').value;
+            const invitationCode = document.getElementById('invitation_code').value;
+
+            // Make a POST request to send invitation code
+            const response = await fetch('/api/add_invitation/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                    invitation_code: invitationCode
+                })
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                document.getElementById('profile_invitation_code').textContent = data.invitation_code;
+                document.getElementById('invitationForm').style.display = 'none';
+            } 
+        });
+    </script>
+</body>
+</html>
