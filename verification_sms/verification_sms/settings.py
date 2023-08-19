@@ -76,17 +76,28 @@ WSGI_APPLICATION = 'verification_sms.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hammer',
-        'USER': 'hammers',
-        'PASSWORD': 'hammer',
-        'HOST': 'db',
-        'PORT': '5432',
-    }
-}
+import os
 
+if 'DOCKER_ENV' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'hammer',
+            'USER': 'hammers',
+            'PASSWORD': 'hammer',
+            'HOST': 'db',
+            'PORT': '5432',
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'hammer',
+            'USER': 'hammers',
+            'PASSWORD': 'hammer',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

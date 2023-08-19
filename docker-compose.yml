@@ -6,7 +6,6 @@ services:
       POSTGRES_DB: hammer
       POSTGRES_USER: hammers
       POSTGRES_PASSWORD: hammer
-
   web:
     build: .
     volumes:
